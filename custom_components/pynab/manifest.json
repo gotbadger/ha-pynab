@@ -1,12 +1,12 @@
 {
   "domain": "pynab",
   "name": "Nabaztag (Pynab)",
-  "codeowners": ["phil"],
+  "codeowners": ["gotbadger"],
   "config_flow": true,
-  "documentation": "https://github.com/nabaztag2018/pynab",
+  "documentation": "https://github.com/gotbadger/ha-pynab",
   "integration_type": "hub",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/nabaztag2018/pynab/issues",
+  "issue_tracker": "https://github.com/gotbadger/ha-pynab/issues",
   "requirements": [],
   "version": "0.1.0"
 }

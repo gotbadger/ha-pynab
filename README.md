@@ -1,4 +1,4 @@
-# hacs-nabaztag
+# ha-pynab
 
 Home Assistant custom integration for Nabaztag (v1/Tag:Tag) rabbits running
 [Pynab](https://github.com/nabaztag2018/pynab) (nabaztag2018).
@@ -25,8 +25,13 @@ each Pynab upgrade.
 
 ## Installation
 
-HACS: add this repository as a custom repository (integration), then install
-"Nabaztag (Pynab)". Or copy `custom_components/pynab` to
+1. In Home Assistant, open **HACS → (⋮) Custom repositories**.
+2. Paste `https://github.com/gotbadger/ha-pynab`, set category to
+   **Integration**, and add it.
+3. Search HACS for **Nabaztag (Pynab)** and install it.
+4. Restart Home Assistant.
+
+Or manually: copy `custom_components/pynab` to
 `<config>/custom_components/pynab` and restart.
 
 ## Configuration
