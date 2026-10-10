@@ -1,0 +1,12 @@
+{
+  "domain": "pynab",
+  "name": "Nabaztag (Pynab)",
+  "codeowners": ["phil"],
+  "config_flow": true,
+  "documentation": "https://github.com/nabaztag2018/pynab",
+  "integration_type": "hub",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/nabaztag2018/pynab/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

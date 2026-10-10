@@ -1,0 +1,18 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Nabaztag (Pynab)",
+        "description": "Connect to a Nabaztag rabbit running Pynab (nabaztag2018/pynab).",
+        "data": {
+          "host": "Host",
+          "port": "nabd port",
+          "http_base": "Web UI base URL (for service triggers)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to nabd on the given host and port. Check that `pynab -public` was run and the firewall allows this machine."
+    }
+  }
+}

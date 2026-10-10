@@ -1,0 +1,130 @@
+say:
+  name: Say
+  description: Speak text on the rabbit using Home Assistant TTS (fetched by the rabbit as MP3).
+  fields:
+    message:
+      name: Message
+      description: Text to speak.
+      required: true
+      example: "Hello, the front door is open"
+      selector:
+        text:
+    engine:
+      name: TTS engine
+      description: Entity id of the TTS engine to use (optional).
+      required: false
+      example: "tts.piper"
+      selector:
+        text:
+    choreography:
+      name: Choreography
+      description: Optional choreography (resource name, urn:x-chor:streaming, or data: URL).
+      required: false
+      example: "urn:x-chor:streaming"
+      selector:
+        text:
+play:
+  name: Play
+  description: Play an MP3 (URL or absolute path) on the rabbit.
+  fields:
+    url:
+      name: URL
+      description: MP3 URL or absolute file path on the rabbit.
+      required: true
+      example: "http://example.com/sound.mp3"
+      selector:
+        text:
+    choreography:
+      name: Choreography
+      description: Optional choreography played with the audio.
+      required: false
+      selector:
+        text:
+sleep:
+  name: Sleep
+  description: Put the rabbit to sleep.
+wakeup:
+  name: Wake up
+  description: Wake the rabbit.
+set_ears:
+  name: Set ears
+  description: Move the rabbit's ears (idle positions).
+  fields:
+    left:
+      name: Left ear
+      description: Position 0-16.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 16
+    right:
+      name: Right ear
+      description: Position 0-16.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 16
+set_leds:
+  name: Set LED animation
+  description: Set an idle-mode LED animation (identified by info_id).
+  fields:
+    info_id:
+      name: Info id
+      description: Identifier of the info animation.
+      required: true
+      selector:
+        text:
+    tempo:
+      name: Tempo
+      description: Frame duration in milliseconds.
+      required: true
+      default: 125
+      selector:
+        number:
+          min: 50
+          max: 60000
+    left:
+      name: Left LED
+      description: Color (#rrggbb or palette 0-15).
+      required: false
+      selector:
+        text:
+    center:
+      name: Center LED
+      description: Color (#rrggbb or palette 0-15).
+      required: false
+      selector:
+        text:
+    right:
+      name: Right LED
+      description: Color (#rrggbb or palette 0-15).
+      required: false
+      selector:
+        text:
+cancel:
+  name: Cancel
+  description: Cancel a running command by request id.
+  fields:
+    request_id:
+      name: Request id
+      description: Request id of the command to cancel.
+      required: true
+      selector:
+        text:
+trigger:
+  name: Trigger built-in service
+  description: Trigger a built-in Pynab service performance (weather forecast, etc).
+  fields:
+    target:
+      name: Service
+      description: Built-in service to trigger.
+      required: true
+      selector:
+        select:
+          options:
+            - weather
+            - airquality
+            - taichi
+            - surprise
