@@ -8,13 +8,12 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import callback
 
-from .const import CONF_HTTP_BASE, DEFAULT_HTTP_BASE, DEFAULT_PORT, DOMAIN
+from .const import DEFAULT_PORT, DOMAIN
 
 DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HOST, default="nabaztag.local"): str,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
-        vol.Optional(CONF_HTTP_BASE, default=DEFAULT_HTTP_BASE): str,
     }
 )
 
@@ -54,10 +53,6 @@ class NabaztagOptionsFlow(config_entries.OptionsFlow):
                 vol.Required(
                     CONF_PORT, default=self.entry.data.get(CONF_PORT, DEFAULT_PORT)
                 ): int,
-                vol.Optional(
-                    CONF_HTTP_BASE,
-                    default=self.entry.data.get(CONF_HTTP_BASE, DEFAULT_HTTP_BASE),
-                ): str,
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema)

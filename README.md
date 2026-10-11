@@ -36,11 +36,12 @@ Or manually: copy `custom_components/pynab` to
 
 ## Configuration
 
-Add via Settings -> Devices -> Add Integration -> Nabaztag (Pynab):
+Add via Settings -> Devices & Services -> Add Integration -> Nabaztag (Pynab):
 
 - Host (default `nabaztag.local`)
 - nabd port (default 10543)
-- Web UI base URL (default `http://nabaztag.local`), used for service triggers
+
+The web UI URL for service triggers is derived from the host.
 
 ## Entities
 

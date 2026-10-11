@@ -6,8 +6,7 @@
         "description": "Connect to a Nabaztag rabbit running Pynab (nabaztag2018/pynab).",
         "data": {
           "host": "Host",
-          "port": "nabd port",
-          "http_base": "Web UI base URL (for service triggers)"
+          "port": "nabd port"
         }
       }
     },

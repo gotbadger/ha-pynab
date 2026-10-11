@@ -9,8 +9,6 @@ from homeassistant.exceptions import ConfigEntryNotReady
 import homeassistant.helpers.config_validation as cv
 
 from .const import (
-    CONF_HTTP_BASE,
-    DEFAULT_HTTP_BASE,
     DEFAULT_PORT,
     DOMAIN,
     EVENT_NABAZTAG,
@@ -80,7 +78,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     client.add_event_listener(handle_event)
 
-    http_base = entry.data.get(CONF_HTTP_BASE, DEFAULT_HTTP_BASE)
+    http_base = f"http://{entry.data[CONF_HOST]}"
 
     async def get_client() -> NabdClient:
         return client
@@ -146,7 +144,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.services.async_register(DOMAIN, SERVICE_TRIGGER_SERVICE, trigger, schema=TRIGGER_SCHEMA)
 
     hass.data[DOMAIN][entry.entry_id] = {"client": client, "http_base": http_base}
-    await hass.config_entries.async_forward_platforms(entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 

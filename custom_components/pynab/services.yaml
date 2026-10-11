@@ -18,7 +18,7 @@ say:
         text:
     choreography:
       name: Choreography
-      description: Optional choreography (resource name, urn:x-chor:streaming, or data: URL).
+      description: "Optional choreography (resource name, urn:x-chor:streaming, or data: URL)."
       required: false
       example: "urn:x-chor:streaming"
       selector:

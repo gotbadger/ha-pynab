@@ -1,8 +1,6 @@
 DOMAIN = "pynab"
-CONF_HTTP_BASE = "http_base"
 DEFAULT_HOST = "nabaztag.local"
 DEFAULT_PORT = 10543
-DEFAULT_HTTP_BASE = "http://nabaztag.local"
 EVENT_NABAZTAG = "nabaztag_event"
 SERVICE_SAY = "say"
 SERVICE_PLAY = "play"
