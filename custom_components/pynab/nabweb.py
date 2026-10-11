@@ -10,7 +10,9 @@ from .const import TRIGGER_PATHS
 
 _LOGGER = logging.getLogger(__name__)
 
-_CSRF_RE = re.compile(r"name='csrfmiddlewaretoken' value='([^']+)'")
+_CSRF_RE = re.compile(
+    r"""name=["']csrfmiddlewaretoken["']\s+value=["']([^"']+)["']""",
+)
 
 
 class NabWebClient:
