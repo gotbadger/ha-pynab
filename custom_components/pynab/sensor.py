@@ -1,4 +1,5 @@
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.core import callback
 
 from .const import DOMAIN, STATE_ASLEEP, STATE_IDLE, STATE_INTERACTIVE, STATE_PLAYING
 from .nabd import NabdClient
