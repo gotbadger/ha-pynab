@@ -23,10 +23,17 @@ from .const import (
     TRIGGER_TARGETS,
 )
 from .nabd import NabdClient
+from .nabweb import NabWebClient
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = [Platform.SENSOR]
+PLATFORMS = [
+    Platform.SENSOR,
+    Platform.SWITCH,
+    Platform.NUMBER,
+    Platform.BUTTON,
+    Platform.EVENT,
+]
 
 SAY_SCHEMA = vol.Schema(
     {
@@ -77,6 +84,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     client.add_event_listener(handle_event)
 
     http_base = f"http://{entry.data[CONF_HOST]}"
+    web = NabWebClient(hass, http_base)
 
     async def get_client() -> NabdClient:
         return client
@@ -126,10 +134,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
 
     async def trigger(call: ServiceCall):
-        from .nabweb import NabWebClient
-
         target = call.data["target"]
-        web = NabWebClient(hass, http_base)
         await web.async_trigger(target)
 
     hass.services.async_register(DOMAIN, SERVICE_SAY, say, schema=SAY_SCHEMA)
@@ -141,7 +146,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.services.async_register(DOMAIN, SERVICE_CANCEL, cancel, schema=CANCEL_SCHEMA)
     hass.services.async_register(DOMAIN, SERVICE_TRIGGER_SERVICE, trigger, schema=TRIGGER_SCHEMA)
 
-    hass.data[DOMAIN][entry.entry_id] = {"client": client, "http_base": http_base}
+    hass.data[DOMAIN][entry.entry_id] = {"client": client, "web": web}
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
@@ -181,4 +186,16 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id, None)
+        if not hass.data[DOMAIN]:
+            for service in (
+                SERVICE_SAY,
+                SERVICE_PLAY,
+                SERVICE_SLEEP,
+                SERVICE_WAKEUP,
+                SERVICE_SET_EARS,
+                SERVICE_SET_LEDS,
+                SERVICE_CANCEL,
+                SERVICE_TRIGGER_SERVICE,
+            ):
+                hass.services.async_remove(DOMAIN, service)
     return unloaded

@@ -27,6 +27,7 @@ class NabdClient:
         self._pending = {}
         self._state_listeners = []
         self._event_listeners = []
+        self._connection_listeners = []
         self._task = None
         self._lock = asyncio.Lock()
         self.connected = False
@@ -42,6 +43,18 @@ class NabdClient:
     def add_event_listener(self, listener):
         self._event_listeners.append(listener)
 
+    @callback
+    def add_connection_listener(self, listener):
+        """Listener called with True/False on connect/disconnect."""
+        self._connection_listeners.append(listener)
+        listener(self.connected)
+
+    def _set_connected(self, value: bool) -> None:
+        if self.connected != value:
+            self.connected = value
+            for listener in self._connection_listeners:
+                listener(value)
+
     async def async_start(self, subscribe_events: bool = True) -> None:
         self._task = self.hass.async_create_background_task(
             self._run(subscribe_events), "pynab-nabd"
@@ -53,16 +66,16 @@ class NabdClient:
                 await self._connect(subscribe_events)
             except (OSError, asyncio.TimeoutError) as err:
                 _LOGGER.warning("nabd connection to %s:%s failed: %s", self.host, self.port, err)
-                self.connected = False
+                self._set_connected(False)
                 await asyncio.sleep(RECONNECT_DELAY)
             except Exception:  # noqa: BLE001
                 _LOGGER.exception("unexpected nabd client error")
-                self.connected = False
+                self._set_connected(False)
                 await asyncio.sleep(RECONNECT_DELAY)
 
     async def _connect(self, subscribe_events: bool) -> None:
         self._reader, self._writer = await asyncio.open_connection(self.host, self.port)
-        self.connected = True
+        self._set_connected(True)
         _LOGGER.info("connected to nabd at %s:%s", self.host, self.port)
         if subscribe_events:
             packet = {
@@ -111,7 +124,9 @@ class NabdClient:
             "ear_event",
             "asr_event",
         ):
-            packet["nabaztag_type"] = ptype
+            # Normalize the protocol's idle/interactive ear event split
+            # into a single user-facing event type.
+            packet["nabaztag_type"] = "ears_event" if ptype == "ear_event" else ptype
             for listener in self._event_listeners:
                 listener(packet)
             return
@@ -145,4 +160,4 @@ class NabdClient:
         if self._writer is not None:
             self._writer.close()
             self._writer = None
-        self.connected = False
+        self._set_connected(False)
