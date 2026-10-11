@@ -66,9 +66,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass, entry.data[CONF_HOST], entry.data.get(CONF_PORT, DEFAULT_PORT)
     )
     try:
-        await hass.async_add_executor_job(
-            _probe, entry.data[CONF_HOST], entry.data.get(CONF_PORT, DEFAULT_PORT)
-        )
+        await _probe(entry.data[CONF_HOST], entry.data.get(CONF_PORT, DEFAULT_PORT))
     except OSError as err:
         raise ConfigEntryNotReady(f"cannot reach nabd: {err}") from err
     await client.async_start(subscribe_events=True)
@@ -148,11 +146,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return True
 
 
-def _probe(host, port):
-    import socket
+async def _probe(host: str, port: int) -> None:
+    import asyncio
 
-    sock = socket.create_connection((host, port), timeout=10)
-    sock.close()
+    reader, writer = await asyncio.open_connection(host, port)
+    writer.close()
 
 
 async def _play(client: NabdClient, url: str, choreography=None) -> None:

@@ -1,11 +1,10 @@
-"""Minimal nabweb HTTP client for triggering service performances."""
+"""aiohttp-based nabweb HTTP client for triggering service performances."""
 
-import asyncio
 import logging
 import re
-import urllib.parse
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import TRIGGER_PATHS
 
@@ -15,38 +14,31 @@ _CSRF_RE = re.compile(r"name='csrfmiddlewaretoken' value='([^']+)'")
 
 
 class NabWebClient:
+    """Client for the pynab web UI (nabweb) trigger endpoints."""
+
     def __init__(self, hass: HomeAssistant, base: str) -> None:
         self.hass = hass
         self.base = base.rstrip("/")
 
     async def async_trigger(self, target: str) -> None:
+        """Trigger an immediate performance of a built-in service."""
         path = TRIGGER_PATHS[target]
-        token = await self.hass.async_add_executor_job(self._fetch_csrf, path)
-        await self.hass.async_add_executor_job(self._put, path, token, target)
-
-    def _fetch_csrf(self, path: str):
-        import urllib.request
-
+        session = async_get_clientsession(self.hass)
         url = f"{self.base}{path}"
-        req = urllib.request.Request(url)
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            body = resp.read().decode("utf-8", errors="replace")
-        match = _CSRF_RE.search(body)
-        token = match.group(1) if match else None
+
+        # CSRF token from a prior GET, as the web UI does
+        token = None
+        async with session.get(url, timeout=10) as resp:
+            resp.raise_for_status()
+            body = await resp.text()
+            match = _CSRF_RE.search(body)
+            if match:
+                token = match.group(1)
         _LOGGER.debug("csrf token for %s: %s", path, bool(token))
-        return token
 
-    def _put(self, path: str, token, target: str) -> None:
-        import urllib.request
-
-        url = f"{self.base}{path}"
-        if target == "weather":
-            data = urllib.parse.urlencode({"type": "today"}).encode()
-        else:
-            data = b""
-        headers = {"X-CSRFToken": token} if token else {}
-        if token:
-            headers["Referer"] = url
-        req = urllib.request.Request(url, data=data, headers=headers, method="PUT")
-        with urllib.request.urlopen(req, timeout=10) as resp:
+        # Only weather takes a body (type=today); others are empty PUTs
+        data = {"type": "today"} if target == "weather" else None
+        headers = {"X-CSRFToken": token, "Referer": url} if token else {}
+        async with session.put(url, data=data, headers=headers, timeout=10) as resp:
+            resp.raise_for_status()
             _LOGGER.debug("trigger %s -> %s", url, resp.status)

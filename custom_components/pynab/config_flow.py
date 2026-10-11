@@ -1,6 +1,6 @@
 """Config flow for Nabaztag (Pynab)."""
 
-import socket
+import asyncio
 
 import voluptuous as vol
 
@@ -25,7 +25,8 @@ class NabaztagConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             await self.async_set_unique_id(f"{DOMAIN}-{host}:{port}")
             self._abort_if_unique_id_configured()
             try:
-                await self.hass.async_add_executor_job(_probe, host, port)
+                reader, writer = await asyncio.open_connection(host, port)
+                writer.close()
             except OSError:
                 errors["base"] = "cannot_connect"
             else:
@@ -77,8 +78,3 @@ class NabaztagOptionsFlow(config_entries.OptionsFlow):
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema)
-
-
-def _probe(host, port):
-    sock = socket.create_connection((host, port), timeout=10)
-    sock.close()
