@@ -104,7 +104,8 @@ trigger:
 
 ## Notes
 
-- TTS uses HA's `tts.async_get_text_to_audio_url`; the rabbit must be able to
+- TTS uses HA's TTS engine (result-stream / `tts_proxy` URL); the rabbit must
+  be able to reach
   reach your Home Assistant's **internal** HTTP URL on the LAN (it fetches the
   MP3 itself). Make sure the TTS engine's base URL is reachable from the
   rabbit, not just from your browser.

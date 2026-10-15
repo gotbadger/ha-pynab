@@ -166,16 +166,28 @@ async def _play(client: NabdClient, url: str, choreography=None) -> None:
 
 
 async def _resolve_tts_url(hass, message: str, engine) -> str:
-    try:
-        from homeassistant.components import tts
-    except ImportError as err:
-        raise ValueError("tts integration not available") from err
-    if engine:
-        url = await tts.async_get_text_to_audio_url(hass, message, engine)
-    else:
-        url = await tts.async_get_text_to_audio_url(hass, message)
+    """Resolve a TTS message to a fetchable MP3 URL.
+
+    The tts_proxy view is unauthenticated, so the rabbit can fetch the
+    generated audio itself.
+    """
+    from homeassistant.components import tts
+    from homeassistant.helpers.network import get_url
+
+    resolved = tts.async_resolve_engine(hass, engine)
+    if resolved is None:
+        raise ValueError(f"no tts engine available (requested: {engine or 'default'})")
+
+    if hasattr(tts, "async_create_stream"):
+        # HA >= 2025.12 result-stream API
+        stream = tts.async_create_stream(hass, resolved)
+        stream.async_set_message(message)
+        return f"{get_url(hass)}{stream.url}"
+
+    # Older HA: direct URL helper
+    url = await tts.async_get_text_to_audio_url(hass, message, resolved)
     if url is None:
-        raise ValueError("no tts engine available for message")
+        raise ValueError("tts engine returned no url")
     return url
 
 
